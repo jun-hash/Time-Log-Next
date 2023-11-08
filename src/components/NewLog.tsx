@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -10,10 +12,13 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useLogStore } from "@/store/index"
 import { GrAdd } from "react-icons/gr"
 import { DatePicker } from "./DatePicker"
 
 export function NewLog() {
+  const log = useLogStore((state) => state.log)
+  const setLog = useLogStore((state) => state.setLog)
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -44,8 +49,16 @@ export function NewLog() {
                 <Label htmlFor="hour" className="text-right">
                 hour
                 </Label>
+                
                 <Input id="hour" type="number"
-                className="col-span-3"/>
+                className="col-span-3"
+                value={log.hour}
+                onChange={(e) => 
+                  setLog({
+                    ...log,
+                    hour: parseInt(e.target.value)})
+                  }
+                />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="Note" className="text-right">
