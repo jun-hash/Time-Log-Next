@@ -15,10 +15,50 @@ import { Label } from "@/components/ui/label"
 import { useLogStore } from "@/store/index"
 import { GrAdd } from "react-icons/gr"
 import { DatePicker } from "./DatePicker"
+import { useToast } from "@/components/ui/use-toast"
+import dayjs from "dayjs"
+
 
 export function NewLog() {
   const log = useLogStore((state) => state.log)
   const setLog = useLogStore((state) => state.setLog)
+  const setLogs = useLogStore((state) => state.setLogs)
+  const logs = useLogStore((state) => state.logs)
+
+  const { toast } = useToast()
+
+  /*Event Handler*/
+
+  const closeDialog = () => {
+    document.getElementById("close-btn")?.click()
+  }
+  const validateLog = () => {
+    if(!log.date || !log.hour || log.hour ===0){
+      throw "시간 또는 날짜가 비어있습니다."
+    }else if (log.hour >= 24) {
+      throw "유효한 시간을 입력하세요.";
+    }
+  }
+
+  const submitLog = () => {
+    try{
+      validateLog()
+      setLogs(log, dayjs(log.date).format("YYYY-MM-DD"))
+      console.log(logs);
+      toast({
+        title: "로그 생성 성공",
+        description: `${log.hour} in ${log.date.toDateString}`,
+      })
+      closeDialog()
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "로그 생성 실패",
+        description: e as string,
+      })
+    }
+
+  }
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -68,11 +108,21 @@ export function NewLog() {
                 id="note"
                 placeholder="note of the log"
                 className="col-span-3"
+                value={log.note}
+                onChange={(e) => 
+                  setLog({
+                    ...log,
+                    note: (e.target.value)})
+                  }
                 />
             </div>
         </div>
         <DialogFooter>
-          <Button type="submit">Save</Button>
+          <Button 
+            type="submit"
+            onClick={submitLog}>
+            Save
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
