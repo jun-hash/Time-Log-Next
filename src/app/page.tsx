@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'  // Import the useRouter hook from the 'next/router' package
 import Calendar from "@/components/Calendar"
 import Logs from "@/components/Logs"
 import Navbar from "@/components/Navbar"
@@ -5,6 +6,7 @@ import { NewLog } from "@/components/NewLog"
 import React from 'react'
 
 export default function page() {
+  const router = useRouter()  // Use the useRouter hook to get access to the Next Router instance
   return (
     <div className="p-5 space-y-10">
       <Navbar />
@@ -14,4 +16,3 @@ export default function page() {
     </div>
   )
 }
-
