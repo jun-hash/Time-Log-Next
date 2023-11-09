@@ -16,6 +16,7 @@ import { useLogStore } from "@/store/index"
 import { GrAdd } from "react-icons/gr"
 import { DatePicker } from "./DatePicker"
 import { useToast } from "@/components/ui/use-toast"
+import {createClientComponentClient} from "@supabase/auth-helpers-nextjs"
 import dayjs from "dayjs"
 
 
@@ -24,11 +25,10 @@ export function NewLog() {
   const setLog = useLogStore((state) => state.setLog)
   const setLogs = useLogStore((state) => state.setLogs)
   const logs = useLogStore((state) => state.logs)
-
+  const supabase = createClientComponentClient()
   const { toast } = useToast()
 
   /*Event Handler*/
-
   const closeDialog = () => {
     document.getElementById("close-btn")?.click()
   }
@@ -40,16 +40,27 @@ export function NewLog() {
     }
   }
 
-  const submitLog = () => {
+  const submitLog = async() => {
     try{
       validateLog()
-      setLogs(log, dayjs(log.date).format("YYYY-MM-DD"))
-      console.log(logs);
-      toast({
-        title: "로그 생성 성공",
-        description: `${log.hour} in ${log.date.toDateString}`,
-      })
-      closeDialog()
+      const {error} = await supabase.from("logs").insert({...log,date: dayjs(log.date).format("YYYY-MM-DD")}).select("*").single()
+      if(!error){
+        setLogs(log, dayjs(log.date).format("YYYY-MM-DD"))
+        console.log(logs);
+        toast({
+          title: "로그 생성 성공",
+          description: `${log.hour} in ${log.date.toDateString}`,
+        })
+        closeDialog()
+      } else {
+        toast({
+          variant: "destructive",
+          title: "로그 생성 실패",
+          description: error.message
+        })
+
+      }
+
     } catch (e) {
       toast({
         variant: "destructive",
@@ -118,7 +129,7 @@ export function NewLog() {
             </div>
         </div>
         <DialogFooter>
-          <Button 
+          <Button
             type="submit"
             onClick={submitLog}>
             Save
